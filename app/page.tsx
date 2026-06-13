@@ -1,17 +1,31 @@
 import { participants } from "../data/participants";
 import { teams } from "../data/teams";
+import { defaultTeamResult, results } from "../data/results";
 import {
   calculateMaxTeamPoints,
   calculateTeamPoints,
   getTeamByName,
   stageLabels,
+  statusLabels,
+  TeamWithResult,
 } from "../lib/scoring";
 
-function getLeaderboard() {
+function getTeamsWithResults(): TeamWithResult[] {
+  return teams.map((team) => {
+    const result = results[team.name] ?? defaultTeamResult;
+
+    return {
+      ...team,
+      ...result,
+    };
+  });
+}
+
+function getLeaderboard(teamsWithResults: TeamWithResult[]) {
   return participants
     .map((participant) => {
       const participantTeams = participant.teams.map((teamName) =>
-        getTeamByName(teams, teamName)
+        getTeamByName(teamsWithResults, teamName)
       );
 
       const currentPoints = participantTeams.reduce(
@@ -24,7 +38,9 @@ function getLeaderboard() {
         0
       );
 
-      const teamsAlive = participantTeams.filter((team) => !team.actualStage).length;
+      const teamsAlive = participantTeams.filter(
+        (team) => team.status === "alive"
+      ).length;
 
       return {
         name: participant.name,
@@ -43,8 +59,27 @@ function getLeaderboard() {
     });
 }
 
+function getPointClass(points: number): string {
+  if (points > 0) return "text-emerald-300";
+  if (points < 0) return "text-rose-300";
+  return "text-slate-100";
+}
+
+function getStatusClass(status: string): string {
+  if (status === "champion") {
+    return "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
+  }
+
+  if (status === "eliminated") {
+    return "bg-rose-500/15 text-rose-300 border-rose-500/30";
+  }
+
+  return "bg-sky-500/15 text-sky-300 border-sky-500/30";
+}
+
 export default function Home() {
-  const leaderboard = getLeaderboard();
+  const teamsWithResults = getTeamsWithResults();
+  const leaderboard = getLeaderboard(teamsWithResults);
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
@@ -65,7 +100,7 @@ export default function Home() {
 
         <div className="mb-10 grid gap-4 md:grid-cols-4">
           <SummaryCard label="Players" value={participants.length} />
-          <SummaryCard label="Drafted Teams" value={teams.length} />
+          <SummaryCard label="Drafted Teams" value={teamsWithResults.length} />
           <SummaryCard label="Current Leader" value={leaderboard[0].name} />
           <SummaryCard
             label="Leader Points"
@@ -85,9 +120,9 @@ export default function Home() {
             <span className="font-bold text-emerald-300">+30 champion bonus</span>.
           </p>
           <p className="mt-3 max-w-4xl text-sm text-slate-300">
-            The Upside column shows each player&apos;s unconstrained team-level
-            ceiling. It does not account for bracket realities, such as only one
-            team being able to win the tournament.
+            While a team is still alive, it can bank positive points for
+            exceeding expectation, but it will not receive negative points until
+            it is officially eliminated.
           </p>
         </section>
 
@@ -122,7 +157,11 @@ export default function Home() {
                       {index + 1}
                     </td>
                     <td className="px-4 py-3 font-bold">{player.name}</td>
-                    <td className="px-4 py-3 text-right font-semibold">
+                    <td
+                      className={`px-4 py-3 text-right font-semibold ${getPointClass(
+                        player.currentPoints
+                      )}`}
+                    >
                       {player.currentPoints}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -149,7 +188,11 @@ export default function Home() {
                 <div className="mb-4 flex items-start justify-between">
                   <div>
                     <h3 className="text-xl font-bold">{player.name}</h3>
-                    <p className="text-sm text-slate-400">
+                    <p
+                      className={`text-sm font-semibold ${getPointClass(
+                        player.currentPoints
+                      )}`}
+                    >
                       {player.currentPoints} current points
                     </p>
                   </div>
@@ -159,25 +202,34 @@ export default function Home() {
                 </div>
 
                 <div className="space-y-3">
-                  {player.teams.map((team) => (
-                    <div
-                      key={team.name}
-                      className="rounded-xl bg-slate-950/70 p-3"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <p className="font-semibold">{team.name}</p>
-                          <p className="text-xs text-slate-400">
-                            Expected: {stageLabels[team.expectedStage]}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold">{calculateTeamPoints(team)}</p>
-                          <p className="text-xs text-slate-500">points</p>
+                  {player.teams.map((team) => {
+                    const points = calculateTeamPoints(team);
+
+                    return (
+                      <div
+                        key={team.name}
+                        className="rounded-xl bg-slate-950/70 p-3"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="font-semibold">{team.name}</p>
+                            <p className="text-xs text-slate-400">
+                              Expected: {stageLabels[team.expectedStage]}
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              Current: {stageLabels[team.currentStage]}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className={`font-bold ${getPointClass(points)}`}>
+                              {points}
+                            </p>
+                            <p className="text-xs text-slate-500">points</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </article>
             ))}
@@ -194,17 +246,20 @@ export default function Home() {
                   <th className="px-4 py-3">Team</th>
                   <th className="px-4 py-3">Owner</th>
                   <th className="px-4 py-3">Expected Stage</th>
-                  <th className="px-4 py-3">Actual Stage</th>
+                  <th className="px-4 py-3">Current Stage</th>
+                  <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 text-right">Odds</th>
                   <th className="px-4 py-3 text-right">Current Points</th>
                   <th className="px-4 py-3 text-right">Team Max</th>
                 </tr>
               </thead>
               <tbody>
-                {teams.map((team) => {
+                {teamsWithResults.map((team) => {
                   const owner = participants.find((participant) =>
                     participant.teams.includes(team.name)
                   );
+
+                  const points = calculateTeamPoints(team);
 
                   return (
                     <tr
@@ -217,15 +272,26 @@ export default function Home() {
                         {stageLabels[team.expectedStage]}
                       </td>
                       <td className="px-4 py-3">
-                        {team.actualStage
-                          ? stageLabels[team.actualStage]
-                          : "Still alive / TBD"}
+                        {stageLabels[team.currentStage]}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`rounded-full border px-2 py-1 text-xs font-semibold ${getStatusClass(
+                            team.status
+                          )}`}
+                        >
+                          {statusLabels[team.status]}
+                        </span>
                       </td>
                       <td className="px-4 py-3 text-right">
                         {team.odds ? `${team.odds}/1` : "—"}
                       </td>
-                      <td className="px-4 py-3 text-right font-semibold">
-                        {calculateTeamPoints(team)}
+                      <td
+                        className={`px-4 py-3 text-right font-semibold ${getPointClass(
+                          points
+                        )}`}
+                      >
+                        {points}
                       </td>
                       <td className="px-4 py-3 text-right">
                         {calculateMaxTeamPoints(team)}

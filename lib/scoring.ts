@@ -1,4 +1,7 @@
 import { Stage, Team } from "../data/teams";
+import { TeamResult } from "../data/results";
+
+export type TeamWithResult = Team & TeamResult;
 
 export const stageLabels: Record<Stage, string> = {
   GS: "Group Stage",
@@ -8,6 +11,12 @@ export const stageLabels: Record<Stage, string> = {
   SF: "Semifinal",
   F: "Final",
   W: "Champion",
+};
+
+export const statusLabels = {
+  alive: "Still Alive",
+  eliminated: "Eliminated",
+  champion: "Champion",
 };
 
 const stageOrder: Record<Stage, number> = {
@@ -20,29 +29,34 @@ const stageOrder: Record<Stage, number> = {
   W: 5,
 };
 
-export function calculateTeamPoints(team: Team): number {
-  if (!team.actualStage) return 0;
+function calculateBasePoints(expectedStage: Stage, currentStage: Stage): number {
+  return (stageOrder[currentStage] - stageOrder[expectedStage]) * 10;
+}
 
-  const basePoints =
-    (stageOrder[team.actualStage] - stageOrder[team.expectedStage]) * 10;
+export function calculateTeamPoints(team: TeamWithResult): number {
+  const basePoints = calculateBasePoints(team.expectedStage, team.currentStage);
 
-  const championBonus = team.actualStage === "W" ? 30 : 0;
+  if (team.status === "champion") {
+    return basePoints + 30;
+  }
 
-  return basePoints + championBonus;
+  if (team.status === "eliminated") {
+    return basePoints;
+  }
+
+  // While a team is still alive, it can bank positive progress,
+  // but it should not be penalized for not reaching expectation yet.
+  return Math.max(0, basePoints);
 }
 
 export function calculateMaxTeamPoints(team: Team): number {
   return (stageOrder.W - stageOrder[team.expectedStage]) * 10 + 30;
 }
 
-export function calculateProjectedTeamPoints(team: Team): number {
-  if (team.actualStage) return calculateTeamPoints(team);
-
-  // For now, assume every unresolved team finishes exactly at expectation.
-  return 0;
-}
-
-export function getTeamByName(teams: Team[], name: string): Team {
+export function getTeamByName<T extends { name: string }>(
+  teams: T[],
+  name: string
+): T {
   const team = teams.find((team) => team.name === name);
 
   if (!team) {
