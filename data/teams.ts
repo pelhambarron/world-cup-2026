@@ -41,7 +41,7 @@ export const teams: Team[] = [
   { name: "Egypt", odds: 300, expectedStage: "R32", actualStage: null },
   { name: "Czechia", odds: 300, expectedStage: "R32", actualStage: null },
   { name: "Ghana", odds: 400, expectedStage: "R32", actualStage: null },
-  { name: "South Korea", odds: null, expectedStage: "R32", actualStage: null },
+  { name: "South Korea", odds: null, expectedStage: "GS", actualStage: null },
 
   { name: "South Africa", odds: null, expectedStage: "GS", actualStage: null },
   { name: "New Zealand", odds: null, expectedStage: "GS", actualStage: null },
@@ -57,6 +57,6 @@ export const teams: Team[] = [
   { name: "Iraq", odds: null, expectedStage: "GS", actualStage: null },
   { name: "Qatar", odds: null, expectedStage: "GS", actualStage: null },
   { name: "Panama", odds: null, expectedStage: "GS", actualStage: null },
-  { name: "Algeria", odds: null, expectedStage: "GS", actualStage: null },
+  { name: "Algeria", odds: null, expectedStage: "R32", actualStage: null },
   { name: "Cape Verde", odds: null, expectedStage: "GS", actualStage: null },
 ];

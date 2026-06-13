@@ -12,6 +12,4 @@ export const defaultTeamResult: TeamResult = {
   status: "alive",
 };
 
-export const results: Partial<Record<string, TeamResult>> = {
-  "Qatar": { currentStage: "R32", status: "alive" },
-};
+export const results: Partial<Record<string, TeamResult>> = {};
