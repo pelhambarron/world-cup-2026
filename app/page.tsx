@@ -2,7 +2,7 @@ import { participants } from "../data/participants";
 import { teams } from "../data/teams";
 import { defaultTeamResult, results } from "../data/results";
 import {
-  calculateMaxTeamPoints,
+  calculateTeamCeilingPoints,
   calculateTeamPoints,
   getTeamByName,
   stageLabels,
@@ -34,7 +34,7 @@ function getLeaderboard(teamsWithResults: TeamWithResult[]) {
       );
 
       const upsidePoints = participantTeams.reduce(
-        (sum, team) => sum + calculateMaxTeamPoints(team),
+        (sum, team) => sum + calculateTeamCeilingPoints(team),
         0
       );
 
@@ -122,7 +122,9 @@ export default function Home() {
           <p className="mt-3 max-w-4xl text-sm text-slate-300">
             While a team is still alive, it can bank positive points for
             exceeding expectation, but it will not receive negative points until
-            it is officially eliminated.
+            it is officially eliminated. The Upside column now reflects each
+            team&apos;s current ceiling: eliminated teams are locked, while live
+            teams can still reach their maximum.
           </p>
         </section>
 
@@ -131,7 +133,7 @@ export default function Home() {
             <div>
               <h2 className="text-2xl font-bold">Leaderboard</h2>
               <p className="text-sm text-slate-400">
-                Ranked by current points, then upside.
+                Ranked by current points, then current upside.
               </p>
             </div>
           </div>
@@ -164,7 +166,11 @@ export default function Home() {
                     >
                       {player.currentPoints}
                     </td>
-                    <td className="px-4 py-3 text-right">
+                    <td
+                      className={`px-4 py-3 text-right font-semibold ${getPointClass(
+                        player.upsidePoints
+                      )}`}
+                    >
                       {player.upsidePoints}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -204,6 +210,7 @@ export default function Home() {
                 <div className="space-y-3">
                   {player.teams.map((team) => {
                     const points = calculateTeamPoints(team);
+                    const ceiling = calculateTeamCeilingPoints(team);
 
                     return (
                       <div
@@ -218,6 +225,9 @@ export default function Home() {
                             </p>
                             <p className="text-xs text-slate-400">
                               Current: {stageLabels[team.currentStage]}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              Ceiling: {ceiling}
                             </p>
                           </div>
                           <div className="text-right">
@@ -250,7 +260,7 @@ export default function Home() {
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3 text-right">Odds</th>
                   <th className="px-4 py-3 text-right">Current Points</th>
-                  <th className="px-4 py-3 text-right">Team Max</th>
+                  <th className="px-4 py-3 text-right">Current Ceiling</th>
                 </tr>
               </thead>
               <tbody>
@@ -260,6 +270,7 @@ export default function Home() {
                   );
 
                   const points = calculateTeamPoints(team);
+                  const ceiling = calculateTeamCeilingPoints(team);
 
                   return (
                     <tr
@@ -293,8 +304,12 @@ export default function Home() {
                       >
                         {points}
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        {calculateMaxTeamPoints(team)}
+                      <td
+                        className={`px-4 py-3 text-right font-semibold ${getPointClass(
+                          ceiling
+                        )}`}
+                      >
+                        {ceiling}
                       </td>
                     </tr>
                   );

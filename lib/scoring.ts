@@ -44,13 +44,24 @@ export function calculateTeamPoints(team: TeamWithResult): number {
     return basePoints;
   }
 
-  // While a team is still alive, it can bank positive progress,
-  // but it should not be penalized for not reaching expectation yet.
+  // While a team is still alive, it can bank positive points
+  // for exceeding expectation, but it should not be penalized
+  // before it is officially eliminated.
   return Math.max(0, basePoints);
 }
 
-export function calculateMaxTeamPoints(team: Team): number {
+export function calculateOriginalMaxTeamPoints(team: Team): number {
   return (stageOrder.W - stageOrder[team.expectedStage]) * 10 + 30;
+}
+
+export function calculateTeamCeilingPoints(team: TeamWithResult): number {
+  // If the team is eliminated or champion, its score is locked.
+  if (team.status === "eliminated" || team.status === "champion") {
+    return calculateTeamPoints(team);
+  }
+
+  // If the team is still alive, its ceiling is still winning the tournament.
+  return calculateOriginalMaxTeamPoints(team);
 }
 
 export function getTeamByName<T extends { name: string }>(
