@@ -13,28 +13,25 @@ export const defaultTeamResult: TeamResult = {
 };
 
 export const results: Partial<Record<string, TeamResult>> = {
-  // Round of 16 teams confirmed so far
-  "Canada": { currentStage: "R16", status: "alive" },
-  "Brazil": { currentStage: "R16", status: "alive" },
-  "Paraguay": { currentStage: "R16", status: "alive" },
-  "Morocco": { currentStage: "R16", status: "alive" },
-  "Norway": { currentStage: "R16", status: "alive" },
-  "France": { currentStage: "R16", status: "alive" },
-  "Mexico": { currentStage: "R16", status: "alive" },
-  "England": { currentStage: "R16", status: "alive" },
-  "Belgium": { currentStage: "R16", status: "alive" },
-  "USA": { currentStage: "R16", status: "alive" },
-  "Spain": { currentStage: "R16", status: "alive" },
-  "Portugal": { currentStage: "R16", status: "alive" },
-  "Switzerland": { currentStage: "R16", status: "alive" },
+  // Quarterfinalists still alive
+  "France": { currentStage: "QF", status: "alive" },
+  "Morocco": { currentStage: "QF", status: "alive" },
+  "Norway": { currentStage: "QF", status: "alive" },
+  "England": { currentStage: "QF", status: "alive" },
+  "Spain": { currentStage: "QF", status: "alive" },
+  "Belgium": { currentStage: "QF", status: "alive" },
+  "Argentina": { currentStage: "QF", status: "alive" },
+  "Switzerland": { currentStage: "QF", status: "alive" },
 
-  // Round of 32 teams still alive / scheduled
-  "Australia": { currentStage: "R32", status: "alive" },
-  "Egypt": { currentStage: "R32", status: "alive" },
-  "Argentina": { currentStage: "R32", status: "alive" },
-  "Cape Verde": { currentStage: "R32", status: "alive" },
-  "Colombia": { currentStage: "R32", status: "alive" },
-  "Ghana": { currentStage: "R32", status: "alive" },
+  // Eliminated in Round of 16
+  "Canada": { currentStage: "R16", status: "eliminated" },
+  "Paraguay": { currentStage: "R16", status: "eliminated" },
+  "Brazil": { currentStage: "R16", status: "eliminated" },
+  "Mexico": { currentStage: "R16", status: "eliminated" },
+  "Portugal": { currentStage: "R16", status: "eliminated" },
+  "USA": { currentStage: "R16", status: "eliminated" },
+  "Egypt": { currentStage: "R16", status: "eliminated" },
+  "Colombia": { currentStage: "R16", status: "eliminated" },
 
   // Eliminated in Round of 32
   "South Africa": { currentStage: "R32", status: "eliminated" },
@@ -50,6 +47,9 @@ export const results: Partial<Record<string, TeamResult>> = {
   "Austria": { currentStage: "R32", status: "eliminated" },
   "Croatia": { currentStage: "R32", status: "eliminated" },
   "Algeria": { currentStage: "R32", status: "eliminated" },
+  "Australia": { currentStage: "R32", status: "eliminated" },
+  "Cape Verde": { currentStage: "R32", status: "eliminated" },
+  "Ghana": { currentStage: "R32", status: "eliminated" },
 
   // Eliminated in Group Stage
   "South Korea": { currentStage: "GS", status: "eliminated" },
