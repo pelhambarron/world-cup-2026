@@ -13,15 +13,19 @@ export const defaultTeamResult: TeamResult = {
 };
 
 export const results: Partial<Record<string, TeamResult>> = {
-  // Quarterfinalists still alive
-  "France": { currentStage: "QF", status: "alive" },
-  "Morocco": { currentStage: "QF", status: "alive" },
-  "Norway": { currentStage: "QF", status: "alive" },
-  "England": { currentStage: "QF", status: "alive" },
-  "Spain": { currentStage: "QF", status: "alive" },
-  "Belgium": { currentStage: "QF", status: "alive" },
-  "Argentina": { currentStage: "QF", status: "alive" },
-  "Switzerland": { currentStage: "QF", status: "alive" },
+  // Finalists still alive
+  "Spain": { currentStage: "F", status: "alive" },
+  "Argentina": { currentStage: "F", status: "alive" },
+
+  // Eliminated in Semifinal
+  "France": { currentStage: "SF", status: "eliminated" },
+  "England": { currentStage: "SF", status: "eliminated" },
+
+  // Eliminated in Quarterfinal
+  "Morocco": { currentStage: "QF", status: "eliminated" },
+  "Belgium": { currentStage: "QF", status: "eliminated" },
+  "Norway": { currentStage: "QF", status: "eliminated" },
+  "Switzerland": { currentStage: "QF", status: "eliminated" },
 
   // Eliminated in Round of 16
   "Canada": { currentStage: "R16", status: "eliminated" },
